@@ -1,4 +1,8 @@
 # Web Application
+```sh
+# sync static web files
+rsync -Pav -e "ssh -i $HOME/.ssh/framework.pem" ubuntu@ogre.dgbellomy.com:web/* static/*
+```
 
 ## AWS EC2 Setup
 ```sh
