@@ -4,7 +4,7 @@ import psycopg2
 import os
 import random
 
-DB_NAME="ogre_test"
+DB_NAME="ogre"
 DB_USER="postgres"
 DB_HOST="psql-1.c1so8qiqiw95.us-east-2.rds.amazonaws.com"
 DB_PASSWD=os.environ['DB_PASSWD']
