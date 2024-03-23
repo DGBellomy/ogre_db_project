@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS Characters (
   rank INT,
   level SMALLINT NOT NULL DEFAULT 1,
   xp INT NOT NULL DEFAULT 0,
+  className VARCHAR(20) NOT NULL REFERENCES Classes(name),
   accountID INT NOT NULL REFERENCES Accounts(id)
 );
 -- INSERT INTO Characters(name, accountID) VALUES ('tiger', 1), ('leon', 2), ('fred2032', 1), ('sigmond1999', 3);
