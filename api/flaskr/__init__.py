@@ -1,7 +1,15 @@
 import os
 import json
+import psycopg2
 
 from flask import Flask
+
+DB_NAME="ogre"
+DB_USER="postgres"
+DB_HOST="psql-1.c1so8qiqiw95.us-east-2.rds.amazonaws.com"
+DB_PASSWD=os.environ['DB_PASSWD']
+
+conn = psycopg2.connect("dbname=%s user=%s password=%s host=%s" % (DB_NAME, DB_USER, DB_PASSWD, DB_HOST))
 
 
 def create_app(test_config=None):
@@ -32,13 +40,36 @@ def create_app(test_config=None):
 
     @app.route('/api/rankings')
     def rankings():
+        cur = conn.cursor()
+        cur.execute('''
+        WITH RankData AS (
+            SELECT name AS Character, className as Class, level,
+                COALESCE((
+                    SELECT COUNT(*)
+                    FROM Duels
+                    WHERE id = winnercharacterid
+                    GROUP BY winnercharacterid
+                ), 0) AS Wins,
+                COALESCE((
+                    SELECT COUNT(*)
+                    FROM Duels
+                    WHERE id = losercharacterid
+                    GROUP BY losercharacterid
+                ),0) AS Losses
+            FROM Characters RIGHT OUTER JOIN Duels
+                ON (id = winnercharacterid OR id = losercharacterid)
+        )
+        SELECT (Wins - Losses) as Ranking, Character, Class, Level,
+                FORMAT(\'%s-%s\', Wins, Losses) as "W-L"
+        FROM RankData
+        ORDER BY Ranking DESC;
+        ''')
+
+        rankings_data = cur.fetchall()
+
         return json.dumps({
                 'columns': ['#', 'Character', 'Class', 'Level', 'W-L'],
-                'data': [
-                            [1, 'Dan the Man', 'Knight', 32, '12-43'],
-                            [2, 'Bob the Builder', 'Wizard', 76, '89-3'],
-                            [3, 'Ted the Wise', 'Assassin', 103, '143-1'],
-                ]
+                'data': rankings_data,
         })
 
     @app.route('/api/accountinfo')
@@ -72,16 +103,20 @@ def create_app(test_config=None):
 
     @app.route('/api/duels')
     def duels():
+        cur = conn.cursor()
+        cur.execute('''
+        SELECT FORMAT('%s', timestamp::date) as Date, FORMAT('%s', timestamp::time) as Time,
+            (Select name from characters where id = winnercharacterid) as Winner,
+            (select name from characters where id = losercharacterid) as Loser
+        FROM Duels
+        ORDER BY timestamp DESC;
+        ''')
+
+        dueling_data = cur.fetchall()
+
         return json.dumps({
             'columns': ['date', 'time', 'winner', 'loser'],
-            'duels': [
-                ['2024-03-13', '42:33', 'Bob the Builder', 'Steve'],
-                ['2024-03-25', '21:37', 'Kron the Brutal', 'Dan the Man'],
-                ['2024-01-23', '22:35', 'Kron the Brutal', 'Steve'],
-                ['2023-10-18', '27:02', 'Dan the Man', 'Steve'],
-                ['2023-08-29', '12:18', 'Bob the Builder', 'Dan the Man'],
-                ['2023-08-03', '02:25', 'Kron the Brutal', 'Bob the Builder'],
-            ],
+            'duels': dueling_data,
         })
 
     return app
