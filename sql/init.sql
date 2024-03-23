@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS Accounts (
 --Characters(id, name, rank, level, xp, accountID)
 CREATE TABLE IF NOT EXISTS Characters (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(20) UNIQUE NOT NULL,
+  name VARCHAR(40) UNIQUE NOT NULL,
   rank INT,
   level SMALLINT NOT NULL DEFAULT 1,
   xp INT NOT NULL DEFAULT 0,
