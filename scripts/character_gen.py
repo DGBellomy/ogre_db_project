@@ -26,6 +26,9 @@ cur = conn.cursor()
 cur.execute("SELECT id FROM Accounts")
 account_ids = cur.fetchall()
 
+cur.execute("SELECT name FROM Classes")
+classes = cur.fetchall()
+
 characternames = set()
 for i in range(MAX_COUNT):
     digits=''
@@ -38,6 +41,6 @@ for i in range(MAX_COUNT):
 print("produced %d unique characters" % len(characternames))
 
 with open("characters.sql", 'w') as f:
-    f.write("INSERT INTO Characters(name, accountID) VALUES\n")
+    f.write("INSERT INTO Characters(name, accountID, className) VALUES\n")
     for name in characternames: 
-        f.write("\t('%s', %d),\n" % (name, random.choice(account_ids)[0]))
+        f.write("\t('%s', %d, '%s'),\n" % (name, random.choice(account_ids)[0], random.choice(classes)[0]))
