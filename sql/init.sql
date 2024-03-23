@@ -7,6 +7,14 @@ CREATE TABLE IF NOT EXISTS Accounts (
 );
 -- INSERT INTO Accounts(username) VALUES ('bob'), ('drew'), ('tommy');
 
+--Classes(name, description)
+CREATE TABLE IF NOT EXISTS Classes (
+  name VARCHAR(20) PRIMARY KEY NOT NULL,
+  description VARCHAR(120) NOT NULL,
+  CHECK(description <> '' AND name <> '')
+);
+-- INSERT INTO Classes(name, description) VALUES ('', ''); -- should fail
+
 --Characters(id, name, rank, level, xp, accountID)
 CREATE TABLE IF NOT EXISTS Characters (
   id SERIAL PRIMARY KEY,
@@ -27,14 +35,6 @@ CREATE TABLE IF NOT EXISTS Duels (
   CHECK(winnerCharacterID <> loserCharacterID)
 );
 -- INSERT INTO Duels(winnerCharacterID, loserCharacterID) VALUES (2, 2); -- should fail
-
---Classes(name, description)
-CREATE TABLE IF NOT EXISTS Classes (
-  name VARCHAR(20) PRIMARY KEY NOT NULL,
-  description VARCHAR(120) NOT NULL,
-  CHECK(description <> '' AND name <> '')
-);
--- INSERT INTO Classes(name, description) VALUES ('', ''); -- should fail
 
 --Attributes(name, description)
 CREATE TABLE IF NOT EXISTS Attributes (
